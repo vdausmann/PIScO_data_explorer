@@ -2,7 +2,6 @@ import re
 import base64
 import io
 import traceback
-import os
 from datetime import datetime
 
 import dash
@@ -22,7 +21,7 @@ _data_cache: dict = {}
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 DEFAULT_ROOT = "/mnt/filer"
-DEFAULT_CACHE_ROOT = str(Path.home() / ".pisco_volume_cache")
+DEFAULT_CACHE_ROOT = "/mnt/filer/M181/M181_Profiles_cached"
 MICRONS_PER_PIXEL = 22.5
 DEPTH_MM = 500
 
@@ -1340,12 +1339,4 @@ def update_dashboard(store_data, edges, plot_type,
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    host = os.getenv("PISCO_HOST", "127.0.0.1")
-    port = int(os.getenv("PISCO_PORT", "8050"))
-    debug = os.getenv("PISCO_DEBUG", "1") == "1"
-
-    print(f"[APP] Starting PIScO Data Explorer on http://{host}:{port}")
-    if host == "0.0.0.0":
-        print(f"[APP] Open locally via http://127.0.0.1:{port}")
-
-    app.run(debug=debug, host=host, port=port)
+    app.run(debug=True, host="0.0.0.0", port=8050)
