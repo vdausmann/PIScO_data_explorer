@@ -209,6 +209,11 @@ def main():
         default=None,
         help="Optional cruise name used in portable cache folder structure"
     )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Cache all profile directories, not just those with existing {name}_Results/"
+    )
     
     args = parser.parse_args()
     
@@ -217,15 +222,27 @@ def main():
         print(f"❌ Error: Profiles directory not found: {profiles_dir_path}")
         sys.exit(1)
     
-    # Find all profile directories (containing {name}_Results/)
-    profile_dirs = sorted([
-        d for d in profiles_dir_path.iterdir()
-        if d.is_dir() and (d / f"{d.name}_Results").exists()
-    ])
+    # Find all profile directories
+    if args.all:
+        # Include all directories (with or without existing {name}_Results/)
+        profile_dirs = sorted([
+            d for d in profiles_dir_path.iterdir()
+            if d.is_dir() and not d.name.startswith('.')  # Skip hidden dirs
+        ])
+    else:
+        # Only include directories that already have {name}_Results/
+        profile_dirs = sorted([
+            d for d in profiles_dir_path.iterdir()
+            if d.is_dir() and (d / f"{d.name}_Results").exists()
+        ])
     
     if not profile_dirs:
-        print(f"⚠️  No profiles found in: {profiles_dir_path}")
-        print(f"    (looking for directories containing {{name}}_Results/)")
+        if args.all:
+            print(f"⚠️  No directories found in: {profiles_dir_path}")
+        else:
+            print(f"⚠️  No profiles found in: {profiles_dir_path}")
+            print(f"    (looking for directories containing {{name}}_Results/)")
+            print(f"    Use --all to cache all directories instead)")
         sys.exit(1)
     
     print(f"\n📁 Processing {len(profile_dirs)} profiles in {profiles_dir_path.name}/ ...\n")
